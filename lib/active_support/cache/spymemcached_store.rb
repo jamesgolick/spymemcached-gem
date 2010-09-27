@@ -23,7 +23,7 @@ module ActiveSupport
       def write(key, value, options = nil)
         super
         method = unless_exist?(options) ? :add : :set
-        @cache.send(method, key, value, expiry(options))
+        @cache.send(method, key, value, expiry(options).to_i)
       end
 
       def delete(key, options = nil)

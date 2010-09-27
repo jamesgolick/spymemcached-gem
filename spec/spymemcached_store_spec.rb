@@ -59,4 +59,8 @@ describe "SpymemcachedStore" do
     @cache.decrement("a", 2)
     @cache.read("a").should == "0"
   end
+
+  it "supports :expires_in with a duration argument" do
+    lambda { @cache.write("a", "2", :expires_in => 1.hour) }.should_not raise_error
+  end
 end
