@@ -12,6 +12,7 @@ Or with bundler:
 
 = How to use the cache store
 
+  require "active_support/cache/spymemcached_store" # you need to do this if you're running rails in threadsafe mode.
   config.cache_store :spymemcached_store, "memcache01:11211", "memcached02:11211", ...
 
 = Or use the client directly:
