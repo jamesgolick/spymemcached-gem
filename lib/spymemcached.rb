@@ -32,6 +32,10 @@ class Spymemcached
     @client.append(0, key, value)
   end
 
+  def prepend(key, value)
+    @client.prepend(0, key, value)
+  end
+
   def flush
     @client.flush
   end

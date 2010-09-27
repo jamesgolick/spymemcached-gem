@@ -50,4 +50,10 @@ describe Spymemcached do
     @cache.append("appendtome", "b")
     @cache.get("appendtome").should == "ab"
   end
+
+  it "prepends to keys" do
+    @cache.set("prependtome", "b")
+    @cache.prepend("prependtome", "a")
+    @cache.get("prependtome").should == "ab"
+  end
 end
