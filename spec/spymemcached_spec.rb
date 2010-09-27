@@ -66,4 +66,15 @@ describe Spymemcached do
     @cache.set("appendtome", "b")
     @cache.append("appendtome", "a").should == true
   end
+
+  it "multigets" do
+    @cache.set("a", "b")
+    @cache.set("b", "c")
+    @cache.set("c", "d")
+    @cache.multiget("a", "b", "c").should == {
+      "a" => "b",
+      "b" => "c",
+      "c" => "d"
+    }
+  end
 end

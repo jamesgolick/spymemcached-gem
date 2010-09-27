@@ -36,6 +36,10 @@ class Spymemcached
     @client.prepend(0, key, value).get
   end
 
+  def multiget(*keys)
+    Hash[*@client.getBulk(*keys).map { |k,v| [k,v] }.flatten]
+  end
+
   def flush
     @client.flush
   end
