@@ -40,6 +40,10 @@ class Spymemcached
     Hash[*@client.getBulk(*keys).map { |k,v| [k,v] }.flatten]
   end
 
+  def add(key, value, expiration = 0)
+    @client.add(key, expiration, value).get
+  end
+
   def flush
     @client.flush
   end

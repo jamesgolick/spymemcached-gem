@@ -77,4 +77,16 @@ describe Spymemcached do
       "c" => "d"
     }
   end
+
+  it "supports add" do
+    @cache.add("a", "b").should == true
+    @cache.get("a").should == "b"
+    @cache.add("a", "b").should == false
+  end
+
+  it "supports expiry for add" do
+    @cache.add("a", "b", 1).should == true
+    sleep(2)
+    @cache.get("a").should be_nil
+  end
 end
