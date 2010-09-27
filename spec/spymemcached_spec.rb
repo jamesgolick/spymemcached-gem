@@ -10,4 +10,14 @@ describe Spymemcached do
     @cache.set("a", "b")
     @cache.get("a").should == "b"
   end
+
+  it "returns nil for missing keys" do
+    @cache.get("asdf").should be_nil
+  end
+
+  it "sets expiration on keys" do
+    @cache.set("a", "b", 1)
+    sleep(2)
+    @cache.get("a").should be_nil
+  end
 end

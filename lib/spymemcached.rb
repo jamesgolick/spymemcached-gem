@@ -12,8 +12,8 @@ class Spymemcached
     end)
   end
 
-  def set(key, value)
-    @client.set(key, 0, value)
+  def set(key, value, expiration = 0)
+    @client.set(key, expiration, value)
   end
 
   def get(key)
