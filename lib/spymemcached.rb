@@ -20,6 +20,10 @@ class Spymemcached
     @client.get(key)
   end
 
+  def incr(key, by = 1)
+    @client.incr(key, by)
+  end
+
   def flush
     @client.flush
   end

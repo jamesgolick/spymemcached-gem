@@ -20,4 +20,16 @@ describe Spymemcached do
     sleep(2)
     @cache.get("a").should be_nil
   end
+
+  it "increments keys" do
+    @cache.set("number", "1")
+    @cache.incr("number")
+    @cache.get("number").should == "2"
+  end
+
+  it "increments keys by a set amount" do
+    @cache.set("number", "1")
+    @cache.incr("number", 2)
+    @cache.get("number").should == "3"
+  end
 end
