@@ -44,4 +44,10 @@ describe Spymemcached do
     @cache.decr("number", 2)
     @cache.get("number").should == "0"
   end
+
+  it "appends to keys" do
+    @cache.set("appendtome", "a")
+    @cache.append("appendtome", "b")
+    @cache.get("appendtome").should == "ab"
+  end
 end
