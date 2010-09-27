@@ -89,4 +89,15 @@ describe Spymemcached do
     sleep(2)
     @cache.get("a").should be_nil
   end
+
+  it "supports deleting keys" do
+    @cache.set("a", "b")
+    @cache.del("a")
+    @cache.get("a").should be_nil
+  end
+
+  it "returns boolean for deletes" do
+    @cache.set("a", "b")
+    @cache.del("a").should == true
+  end
 end

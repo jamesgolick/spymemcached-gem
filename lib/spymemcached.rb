@@ -44,6 +44,10 @@ class Spymemcached
     @client.add(key, expiration, value).get
   end
 
+  def del(key)
+    @client.delete(key).get
+  end
+
   def flush
     @client.flush
   end
