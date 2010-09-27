@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{spymemcached}
-  s.version = "0.0.1"
+  s.version = "0.1.0"
   s.platform = %q{java}
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
@@ -24,11 +24,14 @@ Gem::Specification.new do |s|
      "README.rdoc",
      "Rakefile",
      "VERSION",
+     "lib/active_support/cache/spymemcached_store.rb",
      "lib/spymemcached.rb",
      "lib/spymemcached/memcached-2.5.jar",
      "spec/spec.opts",
      "spec/spec_helper.rb",
-     "spec/spymemcached_spec.rb"
+     "spec/spymemcached_spec.rb",
+     "spec/spymemcached_store_spec.rb",
+     "spymemcached.gemspec"
   ]
   s.homepage = %q{http://github.com/jamesgolick/spymemcached}
   s.rdoc_options = ["--charset=UTF-8"]
@@ -37,7 +40,8 @@ Gem::Specification.new do |s|
   s.summary = %q{A jruby-only memcached client and rails cache store that uses spymemcached under the hood.}
   s.test_files = [
     "spec/spec_helper.rb",
-     "spec/spymemcached_spec.rb"
+     "spec/spymemcached_spec.rb",
+     "spec/spymemcached_store_spec.rb"
   ]
 
   if s.respond_to? :specification_version then
