@@ -1,6 +1,28 @@
 = spymemcached
 
-Description goes here.
+This gem (jruby only) is a memcached client that is a simple wrapper around the very fast spymemcached. It also contains a rails cache store that uses the spymemcached client.
+
+= Install it
+
+  gem install spymemcached
+
+Or with bundler:
+
+  gem "spymemcached", ">=0.1.0"
+
+= How to use the cache store
+
+  config.cache_store :spymemcached_store, "memcache01:11211", "memcached02:11211", ...
+
+= Or use the client directly:
+
+  require "spymemcached"
+  
+  cache = Spymemcached.new("memcache01:11211", "memcache02:11211")
+  cache.set("a", "b")
+  cache.get("a") #=> "b"
+
+  # ... etc ...
 
 == Note on Patches/Pull Requests
  
