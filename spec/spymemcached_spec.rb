@@ -56,4 +56,14 @@ describe Spymemcached do
     @cache.prepend("prependtome", "a")
     @cache.get("prependtome").should == "ab"
   end
+
+  it "returns boolean for prepend" do
+    @cache.set("prependtome", "b")
+    @cache.prepend("prependtome", "a").should == true
+  end
+
+  it "returns boolean for append" do
+    @cache.set("appendtome", "b")
+    @cache.append("appendtome", "a").should == true
+  end
 end

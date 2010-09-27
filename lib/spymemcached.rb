@@ -29,11 +29,11 @@ class Spymemcached
   end
 
   def append(key, value)
-    @client.append(0, key, value)
+    @client.append(0, key, value).get
   end
 
   def prepend(key, value)
-    @client.prepend(0, key, value)
+    @client.prepend(0, key, value).get
   end
 
   def flush
