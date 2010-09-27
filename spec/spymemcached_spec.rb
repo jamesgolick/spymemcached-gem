@@ -32,4 +32,16 @@ describe Spymemcached do
     @cache.incr("number", 2)
     @cache.get("number").should == "3"
   end
+
+  it "decrements keys" do
+    @cache.set("number", "2")
+    @cache.decr("number")
+    @cache.get("number").should == "1"
+  end
+
+  it "decrements keys by a set amount" do
+    @cache.set("number", "2")
+    @cache.decr("number", 2)
+    @cache.get("number").should == "0"
+  end
 end

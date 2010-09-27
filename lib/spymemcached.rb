@@ -24,6 +24,10 @@ class Spymemcached
     @client.incr(key, by)
   end
 
+  def decr(key, by = 1)
+    @client.decr(key, by)
+  end
+
   def flush
     @client.flush
   end
