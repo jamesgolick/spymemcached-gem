@@ -37,27 +37,27 @@ describe "SpymemcachedStore" do
   end
 
   it "supports increment" do
-    @cache.write("a", "1")
+    @cache.write("a", "1", :raw => true)
     @cache.increment("a")
-    @cache.read("a").should == "2"
+    @cache.read("a", :raw => true).should == "2"
   end
 
   it "supports incrementing by a specific amount" do
-    @cache.write("a", "1")
+    @cache.write("a", "1", :raw => true)
     @cache.increment("a", 2)
-    @cache.read("a").should == "3"
+    @cache.read("a", :raw => true).should == "3"
   end
 
   it "supports decrement" do
-    @cache.write("a", "1")
+    @cache.write("a", "1", :raw => true)
     @cache.decrement("a")
-    @cache.read("a").should == "0"
+    @cache.read("a", :raw => true).should == "0"
   end
 
   it "supports decrementing by a specific amount" do
-    @cache.write("a", "2")
+    @cache.write("a", "2", :raw => true)
     @cache.decrement("a", 2)
-    @cache.read("a").should == "0"
+    @cache.read("a", :raw => true).should == "0"
   end
 
   it "supports :expires_in with a duration argument" do

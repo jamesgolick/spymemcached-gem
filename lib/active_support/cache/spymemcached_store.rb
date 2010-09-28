@@ -15,7 +15,7 @@ module ActiveSupport
 
       def read(key, options = nil)
         super
-        @cache.get(key)
+        @cache.get(key, !(options && options[:raw]))
       end
 
       # Set the key to the given value. Pass :unless_exist => true if you want to
@@ -23,7 +23,7 @@ module ActiveSupport
       def write(key, value, options = nil)
         super
         method = unless_exist?(options) ? :add : :set
-        @cache.send(method, key, value, expiry(options).to_i)
+        @cache.send(method, key, value, expiry(options).to_i, !(options && options[:raw]))
       end
 
       def delete(key, options = nil)

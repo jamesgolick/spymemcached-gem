@@ -22,48 +22,48 @@ describe Spymemcached do
   end
 
   it "increments keys" do
-    @cache.set("number", "1")
+    @cache.set("number", "1", 0, false)
     @cache.incr("number")
-    @cache.get("number").should == "2"
+    @cache.get("number", false).should == "2"
   end
 
   it "increments keys by a set amount" do
-    @cache.set("number", "1")
+    @cache.set("number", "1", 0, false)
     @cache.incr("number", 2)
-    @cache.get("number").should == "3"
+    @cache.get("number", false).should == "3"
   end
 
   it "decrements keys" do
-    @cache.set("number", "2")
+    @cache.set("number", "2", 0, false)
     @cache.decr("number")
-    @cache.get("number").should == "1"
+    @cache.get("number", false).should == "1"
   end
 
   it "decrements keys by a set amount" do
-    @cache.set("number", "2")
+    @cache.set("number", "2", 0, false)
     @cache.decr("number", 2)
-    @cache.get("number").should == "0"
+    @cache.get("number", false).should == "0"
   end
 
   it "appends to keys" do
-    @cache.set("appendtome", "a")
+    @cache.set("appendtome", "a", 0, false)
     @cache.append("appendtome", "b")
-    @cache.get("appendtome").should == "ab"
+    @cache.get("appendtome", false).should == "ab"
   end
 
   it "prepends to keys" do
-    @cache.set("prependtome", "b")
+    @cache.set("prependtome", "b", 0, false)
     @cache.prepend("prependtome", "a")
-    @cache.get("prependtome").should == "ab"
+    @cache.get("prependtome", false).should == "ab"
   end
 
   it "returns boolean for prepend" do
-    @cache.set("prependtome", "b")
+    @cache.set("prependtome", "b", 0, false)
     @cache.prepend("prependtome", "a").should == true
   end
 
   it "returns boolean for append" do
-    @cache.set("appendtome", "b")
+    @cache.set("appendtome", "b", 0, false)
     @cache.append("appendtome", "a").should == true
   end
 
@@ -71,7 +71,7 @@ describe Spymemcached do
     @cache.set("a", "b")
     @cache.set("b", "c")
     @cache.set("c", "d")
-    @cache.multiget("a", "b", "c").should == {
+    @cache.multiget(["a", "b", "c"]).should == {
       "a" => "b",
       "b" => "c",
       "c" => "d"
@@ -99,5 +99,20 @@ describe Spymemcached do
   it "returns boolean for deletes" do
     @cache.set("a", "b")
     @cache.del("a").should == true
+  end
+
+  it "correctly marshals and unmarshals objects" do
+    @cache.set("a", {:a => "b"})
+    @cache.get("a").should == {:a => "b"}
+  end
+
+  it "supports setting and getting keys without marshalling the data" do
+    @cache.set("a", {:a => "b"}, 0, false)
+    @cache.get("a", false).should == {:a => "b"}.to_s
+  end
+  
+  it "supports adding keys without marshalling the data" do
+    @cache.add("a", {:a => "b"}, 0, false)
+    @cache.get("a", false).should == {:a => "b"}.to_s
   end
 end

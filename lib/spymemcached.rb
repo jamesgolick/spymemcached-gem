@@ -12,12 +12,13 @@ class Spymemcached
     end)
   end
 
-  def set(key, value, expiration = 0)
-    @client.set(key, expiration, value)
+  def set(key, value, expiration = 0, marshal = true)
+    @client.set(key, expiration, marshal(value, marshal))
   end
 
-  def get(key)
-    @client.get(key)
+  def get(key, marshal = true)
+    value = @client.get(key)
+    marshal && value ?  Marshal.load(value) : value
   end
 
   def incr(key, by = 1)
@@ -36,12 +37,12 @@ class Spymemcached
     @client.prepend(0, key, value).get
   end
 
-  def multiget(*keys)
-    Hash[*@client.getBulk(*keys).map { |k,v| [k,v] }.flatten]
+  def multiget(keys, marshal = true)
+    Hash[*@client.getBulk(*keys).map { |k,v| [k, marshal ? Marshal.load(v) : v] }.flatten]
   end
 
-  def add(key, value, expiration = 0)
-    @client.add(key, expiration, value).get
+  def add(key, value, expiration = 0, marshal = true)
+    @client.add(key, expiration, marshal(value, marshal)).get
   end
 
   def del(key)
@@ -51,4 +52,9 @@ class Spymemcached
   def flush
     @client.flush
   end
+
+  private
+    def marshal(value, marshal)
+      marshal ? Marshal.dump(value) : value.to_s
+    end
 end
