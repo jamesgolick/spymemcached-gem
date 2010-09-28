@@ -3,7 +3,10 @@ require "spymemcached/memcached-2.5.jar"
 
 class Spymemcached
   java_import "net.spy.memcached.MemcachedClient"
+  java_import "net.spy.memcached.transcoders.Transcoder"
+  java_import "net.spy.memcached.CachedData"
   java_import "java.net.InetSocketAddress"
+  java_import "java.util.concurrent.TimeUnit"
 
   def initialize(servers)
     @client = MemcachedClient.new(servers.map do |s|
@@ -12,53 +15,85 @@ class Spymemcached
     end)
   end
 
-  def set(key, value, expiration = 0, marshal = true)
-    @client.set(key, expiration, marshal(value, marshal))
+  def async_set(key, value, expiration = 0, raw = false)
+    @client.set(key, expiration, value, transcoder(raw))
   end
 
-  def get(key, marshal = true)
-    value = @client.get(key)
-    marshal && value ? marshal_load(value) : value
+  def set(key, value, expiration = 0, raw = false)
+    with_timeout async_set(key, value, expiration, raw)
+  end
+
+  def async_get(key, raw = false)
+    @client.asyncGet(key, transcoder(raw))
+  end
+
+  def get(key, raw = false)
+    with_timeout async_get(key, raw)
   end
 
   def incr(key, by = 1)
-    @client.incr(key, by)
+    with_timeout @client.asyncIncr(key, by)
   end
 
   def decr(key, by = 1)
-    @client.decr(key, by)
+    with_timeout @client.asyncDecr(key, by)
   end
 
   def append(key, value)
-    @client.append(0, key, value).get
+    with_timeout @client.append(0, key, value)
   end
 
   def prepend(key, value)
-    @client.prepend(0, key, value).get
+    with_timeout @client.prepend(0, key, value)
   end
 
-  def multiget(keys, marshal = true)
-    Hash[*@client.getBulk(*keys).map { |k,v| [k, marshal ? marshal_load(v) : v] }.flatten]
+  def multiget(keys, raw = false)
+    Hash[*with_timeout(@client.asyncGetBulk(keys, transcoder(raw))).to_a.flatten]
   end
+  alias get_multi multiget
 
-  def add(key, value, expiration = 0, marshal = true)
-    @client.add(key, expiration, marshal(value, marshal)).get
+  def add(key, value, expiration = 0, raw = false)
+    with_timeout @client.add(key, expiration, value, transcoder(raw))
   end
 
   def del(key)
-    @client.delete(key).get
+    with_timeout @client.delete(key)
   end
+  alias delete del
 
   def flush
     @client.flush
   end
 
   private
-    def marshal(value, marshal)
-      marshal ? Marshal.dump(value).to_java_bytes : value.to_s
+  class RubyTranscoder
+    include Transcoder
+    def asyncDecode(data)
+      false
     end
 
-    def marshal_load(value)
-      Marshal.load(String.from_java_bytes(value))
+    def decode(data)
+      Marshal.load(String.from_java_bytes(data.getData))
     end
+
+    def encode(obj)
+      CachedData.new(0, Marshal.dump(obj).to_java_bytes, getMaxSize)
+    end
+
+    def getMaxSize
+      CachedData::MAX_SIZE
+    end
+  end
+
+  def transcoder(raw = false)
+    raw ? @client.transcoder : (@transcoder ||= RubyTranscoder.new)
+  end
+
+  def with_timeout(future, timeout = 0, unit = TimeUnit::MILLISECONDS)
+    if timeout > 0
+      future.get(timeout, unit)
+    else
+      future.get
+    end
+  end
 end

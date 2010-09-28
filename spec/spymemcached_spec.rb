@@ -1,5 +1,13 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
-require "action_view"
+require 'rubygems'
+begin
+  require 'active_support/core_ext/string/output_safety'
+rescue LoadError
+  require "action_view"
+  module ActiveSupport
+    SafeBuffer = ActionView::SafeBuffer
+  end
+end
 
 describe Spymemcached do
   before do
@@ -23,48 +31,48 @@ describe Spymemcached do
   end
 
   it "increments keys" do
-    @cache.set("number", "1", 0, false)
+    @cache.set("number", "1", 0, true)
     @cache.incr("number")
-    @cache.get("number", false).should == "2"
+    @cache.get("number", true).should == "2"
   end
 
   it "increments keys by a set amount" do
-    @cache.set("number", "1", 0, false)
+    @cache.set("number", "1", 0, true)
     @cache.incr("number", 2)
-    @cache.get("number", false).should == "3"
+    @cache.get("number", true).should == "3"
   end
 
   it "decrements keys" do
-    @cache.set("number", "2", 0, false)
+    @cache.set("number", "2", 0, true)
     @cache.decr("number")
-    @cache.get("number", false).should == "1"
+    @cache.get("number", true).should == "1"
   end
 
   it "decrements keys by a set amount" do
-    @cache.set("number", "2", 0, false)
+    @cache.set("number", "2", 0, true)
     @cache.decr("number", 2)
-    @cache.get("number", false).should == "0"
+    @cache.get("number", true).should == "0"
   end
 
   it "appends to keys" do
-    @cache.set("appendtome", "a", 0, false)
+    @cache.set("appendtome", "a", 0, true)
     @cache.append("appendtome", "b")
-    @cache.get("appendtome", false).should == "ab"
+    @cache.get("appendtome", true).should == "ab"
   end
 
   it "prepends to keys" do
-    @cache.set("prependtome", "b", 0, false)
+    @cache.set("prependtome", "b", 0, true)
     @cache.prepend("prependtome", "a")
-    @cache.get("prependtome", false).should == "ab"
+    @cache.get("prependtome", true).should == "ab"
   end
 
   it "returns boolean for prepend" do
-    @cache.set("prependtome", "b", 0, false)
+    @cache.set("prependtome", "b", 0, true)
     @cache.prepend("prependtome", "a").should == true
   end
 
   it "returns boolean for append" do
-    @cache.set("appendtome", "b", 0, false)
+    @cache.set("appendtome", "b", 0, true)
     @cache.append("appendtome", "a").should == true
   end
 
@@ -108,20 +116,20 @@ describe Spymemcached do
   end
 
   it "supports setting and getting keys without marshalling the data" do
-    @cache.set("a", {:a => "b"}, 0, false)
-    @cache.get("a", false).should == {:a => "b"}.to_s
+    @cache.set("a", {:a => "b"}, 0, true)
+    @cache.get("a", true).should == {:a => "b"}.to_s
   end
   
   it "supports adding keys without marshalling the data" do
-    @cache.add("a", {:a => "b"}, 0, false)
-    @cache.get("a", false).should == {:a => "b"}.to_s
+    @cache.add("a", {:a => "b"}, 0, true)
+    @cache.get("a", true).should == {:a => "b"}.to_s
   end
 
-  # not sure exactly why, but ActionView::SafeBuffer
+  # not sure exactly why, but ActiveSupport::SafeBuffer
   # is the only repeatable instance of this bug that
   # I can find
-  it "supports marshalling ActionView::SafeBuffers" do
-    s = ActionView::SafeBuffer.new "<div class=\"story_2 clearfix\">\n    <a href=\"/users/4\"><img alt=\"\" class=\"\" height=\"35\" src=\"http:///avatar_missing_35x35.gif\" title=\"\" width=\"35\" /></a>"
+  it "supports marshalling ActiveSupport::SafeBuffers" do
+    s = ActiveSupport::SafeBuffer.new "<div class=\"story_2 clearfix\">\n    <a href=\"/users/4\"><img alt=\"\" class=\"\" height=\"35\" src=\"http:///avatar_missing_35x35.gif\" title=\"\" width=\"35\" /></a>"
     @cache.set("a", s)
     @cache.get("a").should == s
     @cache.multiget(["a"]).should == {"a" => s}
