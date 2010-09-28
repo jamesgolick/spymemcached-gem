@@ -1,13 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require 'rubygems'
-begin
-  require 'active_support/core_ext/string/output_safety'
-rescue LoadError
-  require "action_view"
-  module ActiveSupport
-    SafeBuffer = ActionView::SafeBuffer
-  end
-end
+require "action_view"
 
 describe Spymemcached do
   before do
@@ -115,13 +108,30 @@ describe Spymemcached do
     @cache.get("a").should == {:a => "b"}
   end
 
-  # not sure exactly why, but ActiveSupport::SafeBuffer
+  # not sure exactly why, but ActionView::SafeBuffer
   # is the only repeatable instance of this bug that
   # I can find
-  it "supports marshalling ActiveSupport::SafeBuffers" do
-    s = ActiveSupport::SafeBuffer.new "<div class=\"story_2 clearfix\">\n    <a href=\"/users/4\"><img alt=\"\" class=\"\" height=\"35\" src=\"http:///avatar_missing_35x35.gif\" title=\"\" width=\"35\" /></a>"
+  it "supports marshalling ActionView::SafeBuffers" do
+    s = ActionView::SafeBuffer.new "<div class=\"story_2 clearfix\">\n    <a href=\"/users/4\"><img alt=\"\" class=\"\" height=\"35\" src=\"http:///avatar_missing_35x35.gif\" title=\"\" width=\"35\" /></a>"
     @cache.set("a", s)
     @cache.get("a").should == s
     @cache.multiget(["a"]).should == {"a" => s}
+  end
+
+  it "supports configurable transcoders" do
+    class NonsenseTranscoder < Spymemcached::RubyTranscoder
+      def decode(data)
+        "decoded"
+      end
+
+      def encode(object)
+        Spymemcached::CachedData.new(0, "encoded".to_java_bytes, getMaxSize)
+      end
+    end
+
+    @cache = Spymemcached.new(["localhost:11211"], NonsenseTranscoder.new)
+    @cache.set("a", "b")
+    @cache.get("a", true).should == "encoded"
+    @cache.get("a").should == "decoded"
   end
 end

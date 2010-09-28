@@ -8,8 +8,30 @@ class Spymemcached
   java_import "java.net.InetSocketAddress"
   java_import "java.util.concurrent.TimeUnit"
 
-  def initialize(servers)
-    @client = MemcachedClient.new(servers.map do |s|
+  class RubyTranscoder
+    include Transcoder
+
+    def asyncDecode(data)
+      false
+    end
+
+    def decode(data)
+      Marshal.load(String.from_java_bytes(data.getData))
+    end
+
+    def encode(obj)
+      CachedData.new(0, Marshal.dump(obj).to_java_bytes, getMaxSize)
+    end
+
+    def getMaxSize
+      CachedData::MAX_SIZE
+    end
+  end
+
+
+  def initialize(servers, transcoder = RubyTranscoder.new)
+    @transcoder = transcoder
+    @client     = MemcachedClient.new(servers.map do |s|
       host, port = s.split(":")
       InetSocketAddress.new(host, port.to_i)
     end)
@@ -66,27 +88,8 @@ class Spymemcached
   end
 
   private
-  class RubyTranscoder
-    include Transcoder
-    def asyncDecode(data)
-      false
-    end
-
-    def decode(data)
-      Marshal.load(String.from_java_bytes(data.getData))
-    end
-
-    def encode(obj)
-      CachedData.new(0, Marshal.dump(obj).to_java_bytes, getMaxSize)
-    end
-
-    def getMaxSize
-      CachedData::MAX_SIZE
-    end
-  end
-
   def transcoder(raw = false)
-    raw ? @client.transcoder : (@transcoder ||= RubyTranscoder.new)
+    raw ? @client.transcoder : @transcoder
   end
 
   def with_timeout(future, timeout = 0, unit = TimeUnit::MILLISECONDS)
