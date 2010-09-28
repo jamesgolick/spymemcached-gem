@@ -115,16 +115,6 @@ describe Spymemcached do
     @cache.get("a").should == {:a => "b"}
   end
 
-  it "supports setting and getting keys without marshalling the data" do
-    @cache.set("a", {:a => "b"}, 0, true)
-    @cache.get("a", true).should == {:a => "b"}.to_s
-  end
-  
-  it "supports adding keys without marshalling the data" do
-    @cache.add("a", {:a => "b"}, 0, true)
-    @cache.get("a", true).should == {:a => "b"}.to_s
-  end
-
   # not sure exactly why, but ActiveSupport::SafeBuffer
   # is the only repeatable instance of this bug that
   # I can find
