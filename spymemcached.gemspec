@@ -5,12 +5,12 @@
 
 Gem::Specification.new do |s|
   s.name = %q{spymemcached}
-  s.version = "0.2.1"
+  s.version = "0.3.0"
   s.platform = %q{java}
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["James Golick"]
-  s.date = %q{2010-09-27}
+  s.date = %q{2010-09-28}
   s.description = %q{A jruby-only memcached client and rails cache store that uses spymemcached under the hood.}
   s.email = %q{jamesgolick@gmail.com}
   s.extra_rdoc_files = [
