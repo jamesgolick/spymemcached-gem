@@ -1,4 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
+require "action_view"
 
 describe Spymemcached do
   before do
@@ -114,5 +115,15 @@ describe Spymemcached do
   it "supports adding keys without marshalling the data" do
     @cache.add("a", {:a => "b"}, 0, false)
     @cache.get("a", false).should == {:a => "b"}.to_s
+  end
+
+  # not sure exactly why, but ActionView::SafeBuffer
+  # is the only repeatable instance of this bug that
+  # I can find
+  it "supports marshalling ActionView::SafeBuffers" do
+    s = ActionView::SafeBuffer.new "<div class=\"story_2 clearfix\">\n    <a href=\"/users/4\"><img alt=\"\" class=\"\" height=\"35\" src=\"http:///avatar_missing_35x35.gif\" title=\"\" width=\"35\" /></a>"
+    @cache.set("a", s)
+    @cache.get("a").should == s
+    @cache.multiget(["a"]).should == {"a" => s}
   end
 end

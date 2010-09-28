@@ -18,7 +18,7 @@ class Spymemcached
 
   def get(key, marshal = true)
     value = @client.get(key)
-    marshal && value ?  Marshal.load(value) : value
+    marshal && value ? marshal_load(value) : value
   end
 
   def incr(key, by = 1)
@@ -38,7 +38,7 @@ class Spymemcached
   end
 
   def multiget(keys, marshal = true)
-    Hash[*@client.getBulk(*keys).map { |k,v| [k, marshal ? Marshal.load(v) : v] }.flatten]
+    Hash[*@client.getBulk(*keys).map { |k,v| [k, marshal ? marshal_load(v) : v] }.flatten]
   end
 
   def add(key, value, expiration = 0, marshal = true)
@@ -55,6 +55,10 @@ class Spymemcached
 
   private
     def marshal(value, marshal)
-      marshal ? Marshal.dump(value) : value.to_s
+      marshal ? Marshal.dump(value).to_java_bytes : value.to_s
+    end
+
+    def marshal_load(value)
+      Marshal.load(String.from_java_bytes(value))
     end
 end
